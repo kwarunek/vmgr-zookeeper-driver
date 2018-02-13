@@ -7,15 +7,24 @@ from aiozk.exc import NoNode
 from aiozk.protocol import AuthRequest
 
 
+try:
+    import ujson as json
+except ImportError:
+    try:
+        import rapidjson as json
+    except ImportError:
+        import json
+
+
 class ZookeeperDriver:
 
-    def __init__(self, servers, working_path=None, auth=None):
+    def __init__(self, servers, working_path=None, add_auth=None):
         self._servers = servers
         self._working_path = working_path or '/vmgr'
-        if auth is not None:
+        if add_auth is not None:
             self._auth = {
-                'scheme': auth.get('scheme', 'digest'),
-                'auth': auth.get('credentials', 'vmgr:vmgr'),
+                'scheme': add_auth.get('scheme', 'digest'),
+                'auth': add_auth.get('auth', 'vmgr:vmgr'),
             }
         else:
             self._auth = None
@@ -31,34 +40,38 @@ class ZookeeperDriver:
 
     async def set_runtime_data(self, preset_name, data):
         await self._assure_connected()
+        prepared_data = json.dumps(data)
         try:
-            await self._zk.set_data(preset_name, data)
+            await self._zk.set_data(preset_name, prepared_data)
         except NoNode:
             await self._zk.create(preset_name)
-            await self._zk.set_data(preset_name, data)
+            await self._zk.set_data(preset_name, prepared_data)
 
     async def get_runtime_data(self, preset_name):
         await self._assure_connected()
         res = await self._zk.get_data(preset_name)
-        return res.decode('utf-8')
+        return json.loads(res.decode('utf-8'))
 
 
-async def simple_test(servers, working_path=None, credentials=None):
-    if credentials:
-        auth = {'credentials': credentials}
+async def simple_test(servers, working_path=None, auth=None):
+    if auth:
+        add_auth = {'auth': auth}
 
     preset_name = 'TEST-zk-vmgr'
     print(f'Simple test with preset: {preset_name}')
 
-    print(f'Creating driver: {servers} {working_path} {credentials}')
-    driver = ZookeeperDriver(servers, working_path, auth)
+    print(f'Creating driver: {servers} {working_path} {add_auth}')
+    driver = ZookeeperDriver(servers, working_path, add_auth)
     try:
         res = await driver.get_runtime_data(preset_name)
         print(f'Old data: {res}')
     except Exception:
         print('No node/data yet')
 
-    data = ''.join(random.choices(string.ascii_uppercase + string.digits, k=32))
+    data = {
+        'foo': ''.join(random.choices(string.ascii_uppercase + string.digits, k=32)),
+        'bar': random.randint(0, 100)
+    }
     print(f'Setting new random data {data}')
     await driver.set_runtime_data(preset_name, data)
     res = await driver.get_runtime_data(preset_name)

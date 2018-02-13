@@ -43,8 +43,8 @@ Install package (in the same environment as Vmgr) and configure ``Vmgr`` like:
         servers:
          - some.zk.host
         working_path: /vmgr
-        auth:
-          credentials: vmgruser:password
+        addauth:
+          auth: vmgruser:password
 
 
     # ...
@@ -58,9 +58,9 @@ Available config options
 
    "servers", "list", "Zookeeper hosts", ""
    "working_path", "string", "Base path where vmgr will read/write/create/deletes its nodes. A cdrwa permissions must be set for this path either to provided auth otherwise to anyone/world", "/vmgr"
-   "auth", "object", "Authentication options. If not provided or `null`, no auth assumed.", "null"
-   "auth.scheme", "string", "Zookeeper's auth scheme (eg. digest sasl).", "digest"
-   "auth.auth", "string", "Auth data specific to given scheme (eg. user:password for digest)","vmgr:vmgr"
+   "addauth", "object", "Authentication options. If not provided or `null` no auth assumed.", "null"
+   "addauth.scheme", "string", "Zookeeper's auth scheme (eg. digest sasl).", "digest"
+   "addauth.auth", "string", "Auth data specific to given scheme (eg. user:password for digest)","vmgr:vmgr"
 
 License
 -------
