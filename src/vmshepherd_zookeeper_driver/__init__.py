@@ -20,11 +20,11 @@ class ZookeeperDriver:
 
     def __init__(self, servers, working_path=None, add_auth=None):
         self._servers = servers
-        self._working_path = working_path or '/vmgr'
+        self._working_path = working_path or '/vmshepherd'
         if add_auth is not None:
             self._auth = {
                 'scheme': add_auth.get('scheme', 'digest'),
-                'auth': add_auth.get('auth', 'vmgr:vmgr'),
+                'auth': add_auth.get('auth', 'vmshepherd:vmshepherd'),
             }
         else:
             self._auth = None
@@ -38,7 +38,7 @@ class ZookeeperDriver:
             auth_req = AuthRequest(type=0, **self._auth)
             await self._zk.send(auth_req)
 
-    async def set_runtime_data(self, preset_name, data):
+    async def set_preset_data(self, preset_name, data):
         await self._assure_connected()
         prepared_data = json.dumps(data)
         try:
@@ -47,23 +47,29 @@ class ZookeeperDriver:
             await self._zk.create(preset_name)
             await self._zk.set_data(preset_name, prepared_data)
 
-    async def get_runtime_data(self, preset_name):
+    async def get_preset_data(self, preset_name):
         await self._assure_connected()
         res = await self._zk.get_data(preset_name)
         return json.loads(res.decode('utf-8'))
+
+    async def lock_preset(self, preset_name):
+        pass
+
+    async def unlock_preset(self, preset_name):
+        pass
 
 
 async def simple_test(servers, working_path=None, auth=None):
     if auth:
         add_auth = {'auth': auth}
 
-    preset_name = 'TEST-zk-vmgr'
+    preset_name = 'TEST-zk-vmshepherd'
     print(f'Simple test with preset: {preset_name}')
 
     print(f'Creating driver: {servers} {working_path} {add_auth}')
     driver = ZookeeperDriver(servers, working_path, add_auth)
     try:
-        res = await driver.get_runtime_data(preset_name)
+        res = await driver.get_preset_data(preset_name)
         print(f'Old data: {res}')
     except Exception:
         print('No node/data yet')
@@ -73,8 +79,8 @@ async def simple_test(servers, working_path=None, auth=None):
         'bar': random.randint(0, 100)
     }
     print(f'Setting new random data {data}')
-    await driver.set_runtime_data(preset_name, data)
-    res = await driver.get_runtime_data(preset_name)
+    await driver.set_preset_data(preset_name, data)
+    res = await driver.get_preset_data(preset_name)
     print(f'Fetched data {res}')
     assert res == data
     print('Everything\'s ok')

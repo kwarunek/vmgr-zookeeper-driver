@@ -1,4 +1,4 @@
-vmgr-zookeeper-driver
+vmshepherd-zookeeper-driver
 =====================
 
 Work in progress
@@ -14,7 +14,7 @@ TODO
 Introduction
 ------------
 
-Provides plugin for ``vmgr`` - driver allows to store runtime data and lock management in Zookeeper.
+Provides plugin for ``vmshepherd`` - driver allows to store runtime data and lock management in Zookeeper.
 
 Installation
 ------------
@@ -23,15 +23,15 @@ Simply use ``pip``.
 
 :: 
 
-    pip install vmgr-zookeeper-driver
+    pip install vmshepherd-zookeeper-driver
 
 
-Library requires (as well as Vmgr itself) python 3.6 or later.
+Library requires (as well as VmShepherd itself) python 3.6 or later.
 
 Usage
 -----
 
-Install package (in the same environment as Vmgr) and configure ``Vmgr`` like:
+Install package (in the same environment as VmShepherd) and configure ``VmShepherd`` like:
 
 ::
 
@@ -42,9 +42,9 @@ Install package (in the same environment as Vmgr) and configure ``Vmgr`` like:
       driver_params:
         servers:
          - some.zk.host
-        working_path: /vmgr
+        working_path: /vmshepherd
         addauth:
-          auth: vmgruser:password
+          auth: vmshepherduser:password
 
 
     # ...
@@ -57,10 +57,10 @@ Available config options
    :widths: 15, 10, 40, 10
 
    "servers", "list", "Zookeeper hosts", ""
-   "working_path", "string", "Base path where vmgr will read/write/create/deletes its nodes. A cdrwa permissions must be set for this path either to provided auth otherwise to anyone/world", "/vmgr"
+   "working_path", "string", "Base path where vmshepherd will read/write/create/deletes its nodes. A cdrwa permissions must be set for this path either to provided auth otherwise to anyone/world", "/vmshepherd"
    "addauth", "object", "Authentication options. If not provided or `null` no auth assumed.", "null"
    "addauth.scheme", "string", "Zookeeper's auth scheme (eg. digest sasl).", "digest"
-   "addauth.auth", "string", "Auth data specific to given scheme (eg. user:password for digest)","vmgr:vmgr"
+   "addauth.auth", "string", "Auth data specific to given scheme (eg. user:password for digest)","vmshepherd:vmshepherd"
 
 License
 -------
