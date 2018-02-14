@@ -6,15 +6,14 @@ Work in progress
 
 TODO
 
-- lock
-- revise API
+- lock implementation
 - proper integration tests with docker
 
 
 Introduction
 ------------
 
-Provides plugin for ``vmshepherd`` - driver allows to store runtime data and lock management in Zookeeper.
+Provides plugin for ``VmShepherd`` - driver allows to store runtime data and lock management in Zookeeper.
 
 Installation
 ------------
