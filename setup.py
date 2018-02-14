@@ -12,11 +12,11 @@ def read(name):
 
 
 setup(
-    name="vmgr",
-    version="0.2.0",
-    author='Dreamlab - PaaS KRK',
-    author_email='paas-support@dreamlab.pl',
-    url='https://github.com/Dreamlab/vmgr',
+    name="vmgr-zookeeper-driver",
+    version="0.0.1",
+    author='Krzysztof Warunek',
+    author_email='krzysztof@warunek.net',
+    url='https://github.com/kwarunek/vmgr-zookeeper-driver',
     description='Runtime and lock management for Vmgr',
     long_description='%s\n%s' % (
         read('README.rst'),
@@ -30,9 +30,10 @@ setup(
     entry_points={
         'vmgr.driver.runtime': ['ZookeeperDriver = vmgr_zookeeper_driver:ZookeeperDriver'],
     },
-    keywords=['vmgr', 'zookeeper', 'runtime', 'lock'],
+    keywords=['vmgr', 'openstack', 'zookeeper', 'runtime', 'lock'],
     classifiers=[
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Operating System :: POSIX',
         'Development Status :: 4 - Beta'
     ]
