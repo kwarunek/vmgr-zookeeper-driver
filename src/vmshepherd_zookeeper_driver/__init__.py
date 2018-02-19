@@ -3,7 +3,7 @@ import random
 import string
 import sys
 from aiozk import ZKClient
-from aiozk.exc import NoNode
+from aiozk.exc import NoNode, NodeExists
 from aiozk.protocol import AuthRequest
 
 
@@ -52,11 +52,19 @@ class ZookeeperDriver:
         res = await self._zk.get_data(preset_name)
         return json.loads(res.decode('utf-8'))
 
-    async def lock_preset(self, preset_name):
-        pass
+    async def acquire_lock(self, name):
+        try:
+            await self._zk.create(f'{name}.lock')
+            return True
+        except NodeExists:
+            return False
 
-    async def unlock_preset(self, preset_name):
-        pass
+    async def release_lock(self, name):
+        try:
+            await self._zk.delete(f'{name}.lock')
+            return True
+        except NoNode:
+            return False
 
 
 async def simple_test(servers, working_path=None, auth=None):
