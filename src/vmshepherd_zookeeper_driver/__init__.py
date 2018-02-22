@@ -5,6 +5,7 @@ import sys
 from aiozk import ZKClient
 from aiozk.exc import NoNode, NodeExists
 from aiozk.protocol import AuthRequest
+from vmshepherd.runtime import AbstractRuntimeData
 
 
 try:
@@ -16,15 +17,16 @@ except ImportError:
         import json
 
 
-class ZookeeperDriver:
+class ZookeeperDriver(AbstractRuntimeData):
 
-    def __init__(self, servers, working_path=None, add_auth=None):
-        self._servers = servers
+    def __init__(self, instance_id, servers, working_path=None, addauth=None):
+        super().__init__(instance_id)
+        self._servers = servers if isinstance(servers, str) else ','.join(servers)
         self._working_path = working_path or '/vmshepherd'
-        if add_auth is not None:
+        if addauth is not None:
             self._auth = {
-                'scheme': add_auth.get('scheme', 'digest'),
-                'auth': add_auth.get('auth', 'vmshepherd:vmshepherd'),
+                'scheme': addauth.get('scheme', 'digest'),
+                'auth': addauth.get('auth', 'vmshepherd:vmshepherd'),
             }
         else:
             self._auth = None
@@ -38,7 +40,7 @@ class ZookeeperDriver:
             auth_req = AuthRequest(type=0, **self._auth)
             await self._zk.send(auth_req)
 
-    async def set_preset_data(self, preset_name, data):
+    async def _set_preset_data(self, preset_name, data):
         await self._assure_connected()
         prepared_data = json.dumps(data)
         try:
@@ -47,54 +49,24 @@ class ZookeeperDriver:
             await self._zk.create(preset_name)
             await self._zk.set_data(preset_name, prepared_data)
 
-    async def get_preset_data(self, preset_name):
+    async def _get_preset_data(self, preset_name):
         await self._assure_connected()
-        res = await self._zk.get_data(preset_name)
+        try:
+            res = await self._zk.get_data(preset_name)
+        except NoNode:
+            return {}
         return json.loads(res.decode('utf-8'))
 
-    async def acquire_lock(self, name):
+    async def _acquire_lock(self, name):
         try:
             await self._zk.create(f'{name}.lock')
             return True
         except NodeExists:
             return False
 
-    async def release_lock(self, name):
+    async def _release_lock(self, name):
         try:
             await self._zk.delete(f'{name}.lock')
             return True
         except NoNode:
             return False
-
-
-async def simple_test(servers, working_path=None, auth=None):
-    if auth:
-        add_auth = {'auth': auth}
-
-    preset_name = 'TEST-zk-vmshepherd'
-    print(f'Simple test with preset: {preset_name}')
-
-    print(f'Creating driver: {servers} {working_path} {add_auth}')
-    driver = ZookeeperDriver(servers, working_path, add_auth)
-    try:
-        res = await driver.get_preset_data(preset_name)
-        print(f'Old data: {res}')
-    except Exception:
-        print('No node/data yet')
-
-    data = {
-        'foo': ''.join(random.choices(string.ascii_uppercase + string.digits, k=32)),
-        'bar': random.randint(0, 100)
-    }
-    print(f'Setting new random data {data}')
-    await driver.set_preset_data(preset_name, data)
-    res = await driver.get_preset_data(preset_name)
-    print(f'Fetched data {res}')
-    assert res == data
-    print('Everything\'s ok')
-
-
-if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    future = simple_test(*sys.argv[1:])
-    loop.run_until_complete(future)
