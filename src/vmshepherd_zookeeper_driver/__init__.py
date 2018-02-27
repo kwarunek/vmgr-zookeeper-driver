@@ -29,7 +29,7 @@ class ZookeeperDriver(AbstractRuntimeData):
             await self._zk.send(auth_req)
 
     def reconfigure(self, config):
-        if isinstance(config['servers'], str):
+        if isinstance(config['servers'], list):
             self._servers = ','.join(config['servers'])
         else:
             self._servers = config['servers']
