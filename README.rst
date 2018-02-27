@@ -38,12 +38,11 @@ Install package (in the same environment as VmShepherd) and configure ``VmShephe
 
     runtime:
       driver: ZookeeperDriver
-      driver_params:
-        servers:
-         - some.zk.host
-        working_path: /vmshepherd
-        addauth:
-          auth: vmshepherduser:password
+      servers:
+       - some.zk.host
+      working_path: /vmshepherd
+      addauth:
+        auth: vmshepherduser:password
 
 
     # ...

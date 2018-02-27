@@ -1,28 +1,17 @@
-import asyncio
-import random
-import string
-import sys
+import json
 from aiozk import ZKClient
 from aiozk.exc import NoNode, NodeExists
 from aiozk.protocol import AuthRequest
 from vmshepherd.runtime import AbstractRuntimeData
 
 
-try:
-    import ujson as json
-except ImportError:
-    try:
-        import rapidjson as json
-    except ImportError:
-        import json
-
-
 class ZookeeperDriver(AbstractRuntimeData):
 
-    def __init__(self, instance_id, servers, working_path=None, addauth=None):
+    def __init__(self, instance_id, config):
         super().__init__(instance_id)
-        self._servers = servers if isinstance(servers, str) else ','.join(servers)
-        self._working_path = working_path or '/vmshepherd'
+        self.reconfigure(config)
+
+    def set_auth(self, addauth):
         if addauth is not None:
             self._auth = {
                 'scheme': addauth.get('scheme', 'digest'),
@@ -30,7 +19,6 @@ class ZookeeperDriver(AbstractRuntimeData):
             }
         else:
             self._auth = None
-        self._zk = None
 
     async def _assure_connected(self):
         if self._zk is None:
@@ -39,6 +27,15 @@ class ZookeeperDriver(AbstractRuntimeData):
         if self._auth is not None:
             auth_req = AuthRequest(type=0, **self._auth)
             await self._zk.send(auth_req)
+
+    def reconfigure(self, config):
+        if isinstance(config['servers'], str):
+            self._servers = ','.join(config['servers'])
+        else:
+            self._servers = config['servers']
+        self._working_path = config.get('working_path', '/vmshepherd')
+        self.set_auth(config.get('addauth'))
+        self._zk = None
 
     async def _set_preset_data(self, preset_name, data):
         await self._assure_connected()
