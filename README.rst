@@ -1,15 +1,6 @@
 vmshepherd-zookeeper-driver
 =====================
 
-Work in progress
-----------------
-
-TODO
-
-- lock implementation
-- proper integration tests with docker
-
-
 Introduction
 ------------
 

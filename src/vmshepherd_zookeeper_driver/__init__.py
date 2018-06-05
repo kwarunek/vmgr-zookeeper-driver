@@ -54,7 +54,7 @@ class ZookeeperDriver(AbstractRuntimeData):
             return {}
         return json.loads(res.decode('utf-8'))
 
-    async def _acquire_lock(self, name):
+    async def _acquire_lock(self, name, timeout=1):
         try:
             await self._zk.create(f'{name}.lock')
             return True
