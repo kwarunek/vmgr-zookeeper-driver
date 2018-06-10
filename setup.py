@@ -13,7 +13,7 @@ def read(name):
 
 setup(
     name="vmshepherd-zookeeper-driver",
-    version="1.0.0",
+    version="1.0.1",
     author='Krzysztof Warunek',
     author_email='krzysztof@warunek.net',
     url='https://github.com/kwarunek/vmshepherd-zookeeper-driver',
@@ -34,7 +34,6 @@ setup(
     classifiers=[
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-        'Operating System :: POSIX',
-        'Development Status :: 4 - Beta'
+        'Operating System :: POSIX'
     ]
 )
