@@ -1,2 +1,2 @@
-aiozk
+aiozk==0.7.0
 vmshepherd
