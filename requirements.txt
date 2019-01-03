@@ -1,2 +1,2 @@
 aiozk
-vmshepherd
+vmshepherd==1.2.0
